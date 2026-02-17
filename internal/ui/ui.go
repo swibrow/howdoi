@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
@@ -13,13 +12,15 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/term"
 )
 
+// Catppuccin Mocha palette
 var (
-	commandStyle     = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("82"))
-	explanationStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
-	labelStyle       = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("212"))
-	errorStyle       = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("196"))
+	commandStyle     = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#a6e3a1")) // Green
+	explanationStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#a6adc8"))            // Subtext0
+	labelStyle       = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f5c2e7")) // Pink
+	errorStyle       = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f38ba8")) // Red
 )
 
 type Result struct {
@@ -64,16 +65,27 @@ func DisplayError(msg string) {
 }
 
 // ConfirmAndRun prompts the user to run the command and executes it.
+// Reads a single keypress without requiring Enter.
 func ConfirmAndRun(command string) error {
 	fmt.Printf("  Run this command? [y/N] ")
-	reader := bufio.NewReader(os.Stdin)
-	input, err := reader.ReadString('\n')
+
+	fd := int(os.Stdin.Fd())
+	oldState, err := term.MakeRaw(fd)
+	if err != nil {
+		// Not a terminal (e.g. piped input) — can't use raw mode
+		return nil
+	}
+
+	var buf [1]byte
+	_, err = os.Stdin.Read(buf[:])
+	term.Restore(fd, oldState)
+	fmt.Println() // move to next line after the keypress
+
 	if err != nil {
 		return fmt.Errorf("reading input: %w", err)
 	}
 
-	input = strings.TrimSpace(strings.ToLower(input))
-	if input != "y" && input != "yes" {
+	if buf[0] != 'y' && buf[0] != 'Y' {
 		return nil
 	}
 
@@ -107,7 +119,7 @@ func RunCommand(command string) error {
 }
 
 var (
-	hintStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("214"))
+	hintStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f9e2af")) // Yellow
 
 	// Matches patterns like "sh: ss: command not found" or "bash: ss: command not found"
 	notFoundRe = regexp.MustCompile(`(?:sh|bash):\s*(?:line \d+:\s*)?(\S+):\s*(?:command )?not found`)
