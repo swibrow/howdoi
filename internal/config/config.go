@@ -14,6 +14,11 @@ type Config struct {
 	Anthropic    AnthropicConfig `yaml:"anthropic"`
 	OpenAI       OpenAIConfig    `yaml:"openai"`
 	Ollama       OllamaConfig    `yaml:"ollama"`
+	Memory       MemoryConfig    `yaml:"memory"`
+}
+
+type MemoryConfig struct {
+	Enabled bool `yaml:"enabled"`
 }
 
 type AnthropicConfig struct {
@@ -44,6 +49,9 @@ func DefaultConfig() *Config {
 			Model: "llama3",
 			URL:   "http://localhost:11434/v1",
 		},
+		Memory: MemoryConfig{
+			Enabled: true,
+		},
 	}
 }
 
@@ -52,7 +60,7 @@ func DefaultConfig() *Config {
 // Tests set this to redirect config I/O to a temp directory.
 var ConfigDirFunc func() (string, error)
 
-func configDir() (string, error) {
+func ConfigDir() (string, error) {
 	if ConfigDirFunc != nil {
 		return ConfigDirFunc()
 	}
@@ -64,7 +72,7 @@ func configDir() (string, error) {
 }
 
 func configPath() (string, error) {
-	dir, err := configDir()
+	dir, err := ConfigDir()
 	if err != nil {
 		return "", err
 	}
