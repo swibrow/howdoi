@@ -78,7 +78,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			defer store.Close()
+			defer store.Close() //nolint:errcheck
 
 			interactions, err := store.List(context.Background(), 20)
 			if err != nil {
@@ -109,7 +109,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			defer store.Close()
+			defer store.Close() //nolint:errcheck
 
 			if err := store.Clear(context.Background()); err != nil {
 				return fmt.Errorf("clearing memory: %w", err)
@@ -156,7 +156,7 @@ func run(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: memory disabled: %v\n", err)
 		} else {
-			defer store.Close()
+			defer store.Close() //nolint:errcheck
 		}
 	}
 

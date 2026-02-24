@@ -56,9 +56,9 @@ func FormatMemoryContext(interactions []memory.Interaction) string {
 	var b strings.Builder
 	b.WriteString("\nThe user has previously run these commands successfully:\n")
 	for _, ix := range interactions {
-		b.WriteString(fmt.Sprintf("- Q: %s → $ %s", ix.Question, ix.Command))
+		fmt.Fprintf(&b, "- Q: %s → $ %s", ix.Question, ix.Command)
 		if ix.UseCount > 1 {
-			b.WriteString(fmt.Sprintf(" (used %d times)", ix.UseCount))
+			fmt.Fprintf(&b, " (used %d times)", ix.UseCount)
 		}
 		b.WriteString("\n")
 	}

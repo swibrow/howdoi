@@ -63,23 +63,23 @@ func Open(dir string) (*Store, error) {
 	}
 
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("enabling WAL mode: %w", err)
 	}
 
 	if _, err := db.Exec(schema); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("creating schema: %w", err)
 	}
 
 	// Rebuild FTS index to handle existing data from before the FTS migration
 	if _, err := db.Exec("INSERT INTO interactions_fts(interactions_fts) VALUES('rebuild')"); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("rebuilding FTS index: %w", err)
 	}
 
 	// Drop legacy index if it exists (FTS5 replaces it)
-	db.Exec("DROP INDEX IF EXISTS idx_interactions_tags")
+	_, _ = db.Exec("DROP INDEX IF EXISTS idx_interactions_tags")
 
 	return &Store{db: db}, nil
 }
@@ -141,7 +141,7 @@ func (s *Store) Search(ctx context.Context, question string, limit int) ([]Inter
 	if err != nil {
 		return nil, fmt.Errorf("searching interactions: %w", err)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	return scanInteractions(rows)
 }
@@ -157,7 +157,7 @@ func (s *Store) List(ctx context.Context, limit int) ([]Interaction, error) {
 	if err != nil {
 		return nil, fmt.Errorf("listing interactions: %w", err)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	return scanInteractions(rows)
 }

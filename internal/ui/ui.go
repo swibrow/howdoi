@@ -49,12 +49,13 @@ func ParseResponse(response string) Result {
 
 // stripBackticks removes backtick wrapping that LLMs sometimes add.
 func stripBackticks(cmd string) string {
-	if strings.HasPrefix(cmd, "```") {
+	switch {
+	case strings.HasPrefix(cmd, "```"):
 		cmd = strings.TrimPrefix(cmd, "```")
 		cmd = strings.TrimSuffix(cmd, "```")
-	} else if strings.HasPrefix(cmd, "`") && strings.HasSuffix(cmd, "`") {
+	case strings.HasPrefix(cmd, "`") && strings.HasSuffix(cmd, "`"):
 		cmd = cmd[1 : len(cmd)-1]
-	} else if strings.HasPrefix(cmd, "`") {
+	case strings.HasPrefix(cmd, "`"):
 		cmd = strings.TrimPrefix(cmd, "`")
 	}
 	return strings.TrimSpace(cmd)
@@ -95,7 +96,7 @@ func ConfirmAndRun(command string) (bool, error) {
 
 	var buf [1]byte
 	_, err = os.Stdin.Read(buf[:])
-	term.Restore(fd, oldState)
+	_ = term.Restore(fd, oldState)
 	fmt.Println() // move to next line after the keypress
 
 	if err != nil {
@@ -149,12 +150,12 @@ func addToShellHistory(command string) {
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	if strings.Contains(shell, "zsh") && isZshExtendedHistory(histFile) {
-		fmt.Fprintf(f, ": %d:0;%s\n", time.Now().Unix(), command)
+		_, _ = fmt.Fprintf(f, ": %d:0;%s\n", time.Now().Unix(), command)
 	} else {
-		fmt.Fprintf(f, "%s\n", command)
+		_, _ = fmt.Fprintf(f, "%s\n", command)
 	}
 }
 
@@ -185,7 +186,7 @@ func isZshExtendedHistory(histFile string) bool {
 	if err != nil {
 		return false
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	info, err := f.Stat()
 	if err != nil || info.Size() == 0 {
