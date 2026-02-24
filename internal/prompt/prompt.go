@@ -22,7 +22,8 @@ Rules:
 - Do not wrap the command in backticks or code blocks
 - Do not include any text outside the COMMAND/EXPLANATION format
 - If the question is ambiguous, pick the most common interpretation
-- Use placeholder values like <filename> only when the user hasn't specified one
+- Use placeholder values like <filename> only when the user hasn't specified one AND the value cannot be determined dynamically
+- NEVER use placeholders for values that can be resolved from the environment. Use command substitution instead. For example, use $(gh repo view --json nameWithOwner -q .nameWithOwner) instead of <OWNER>/<REPO>, or prefer CLI subcommands that infer context automatically (e.g. gh run list instead of gh api /repos/<OWNER>/<REPO>/actions/runs)
 - IMPORTANT: If a command requires the user to choose from a list of inputs (a branch, a file, a process, a container, a pod, etc.), do NOT use placeholders. Instead, construct a pipeline that generates the list and pipes it through fzf for interactive selection, then feeds the selection into the command.
 
 Examples of interactive selection:
