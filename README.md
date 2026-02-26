@@ -28,7 +28,7 @@ brew install swibrow/tap/how
 ### From source
 
 ```sh
-go install github.com/swibrow/how@latest
+go install github.com/swibrow/how/cmd/how@latest
 ```
 
 ### From releases

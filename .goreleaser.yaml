@@ -1,7 +1,8 @@
 version: 2
 
 builds:
-  - binary: how
+  - main: ./cmd/how
+    binary: how
     env:
       - CGO_ENABLED=0
     goos:

@@ -3,7 +3,7 @@
 all: lint test build
 
 build:
-	go build -o how .
+	go build -o how ./cmd/how
 
 test:
 	go test -race ./...
@@ -25,4 +25,4 @@ clean:
 	rm -f how coverage.out
 
 install:
-	go install .
+	go install ./cmd/how
