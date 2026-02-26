@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/swibrow/how/compare/v1.0.0...v1.0.1) (2026-02-26)
+
+
+### Bug Fixes
+
+* use dedicated PAT for homebrew tap publishing ([ed69ed7](https://github.com/swibrow/how/commit/ed69ed71cf54d69100fa3f0dd4a25f76241d3876))
+
 ## 1.0.0 (2026-02-26)
 
 
