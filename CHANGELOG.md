@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/swibrow/how/compare/v1.0.1...v1.0.2) (2026-03-01)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/anthropics/anthropic-sdk-go to v1.26.0 ([#4](https://github.com/swibrow/how/issues/4)) ([ef2af8c](https://github.com/swibrow/how/commit/ef2af8cdb92fba7ca9de1419d09ae567b476e86c))
+
 ## [1.0.1](https://github.com/swibrow/how/compare/v1.0.0...v1.0.1) (2026-02-26)
 
 
