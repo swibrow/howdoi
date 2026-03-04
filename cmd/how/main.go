@@ -187,6 +187,10 @@ func run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("no command in response")
 	}
 
+	if missing := ui.ValidateCommand(result.Command); len(missing) > 0 && !flagQuiet {
+		ui.DisplayWarnings(missing)
+	}
+
 	if flagQuiet {
 		ui.DisplayQuiet(result)
 		return nil

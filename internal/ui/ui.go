@@ -234,6 +234,79 @@ func parseNotFoundCommand(stderr, command string) string {
 	return ""
 }
 
+// shellBuiltins is the set of shell builtins that should be skipped during
+// command validation since they won't be found by LookPath.
+var shellBuiltins = map[string]bool{
+	"cd": true, "echo": true, "export": true, "source": true,
+	"test": true, "[": true, "set": true, "unset": true,
+	"read": true, "return": true, "exit": true, "exec": true,
+	"eval": true, "trap": true, "shift": true, "wait": true,
+	"true": true, "false": true, "for": true, "while": true,
+	"do": true, "done": true, "if": true, "then": true,
+	"else": true, "fi": true, "case": true, "esac": true,
+	"function": true, "select": true, "until": true, "time": true,
+	"printf": true, "type": true, "alias": true, "unalias": true,
+	"builtin": true, "command": true, "declare": true, "local": true,
+	"readonly": true, "typeset": true, "ulimit": true, "umask": true,
+}
+
+// splitShellOperators is a regex that splits on |, &&, ||, and ;
+// but not on | inside $() or quotes (best-effort for simple cases).
+var splitShellOperators = regexp.MustCompile(`\s*(?:\|\||&&|[|;])\s*`)
+
+// ValidateCommand extracts base command names from a shell command string
+// and checks whether each exists on the system. Returns names of missing commands.
+func ValidateCommand(command string) []string {
+	segments := splitShellOperators.Split(command, -1)
+
+	seen := make(map[string]bool)
+	var missing []string
+
+	for _, seg := range segments {
+		seg = strings.TrimSpace(seg)
+		if seg == "" {
+			continue
+		}
+
+		cmdName := extractBaseCommand(seg)
+		if cmdName == "" || shellBuiltins[cmdName] || seen[cmdName] {
+			continue
+		}
+		seen[cmdName] = true
+
+		if _, err := exec.LookPath(cmdName); err != nil {
+			missing = append(missing, cmdName)
+		}
+	}
+	return missing
+}
+
+// extractBaseCommand gets the executable name from a shell segment,
+// skipping leading env var assignments (e.g. FOO=bar cmd).
+func extractBaseCommand(segment string) string {
+	for f := range strings.FieldsSeq(segment) {
+		// Skip env var assignments like FOO=bar
+		if strings.Contains(f, "=") && !strings.HasPrefix(f, "-") {
+			continue
+		}
+		// Skip subshell prefixes
+		f = strings.TrimLeft(f, "(")
+		if f == "" {
+			continue
+		}
+		return f
+	}
+	return ""
+}
+
+// DisplayWarnings prints yellow warnings for missing commands.
+func DisplayWarnings(missing []string) {
+	for _, cmd := range missing {
+		fmt.Fprintf(os.Stderr, "  %s '%s' not found. The suggested command may be incorrect.\n",
+			hintStyle.Render("Warning:"), cmd)
+	}
+}
+
 // installSuggestion returns a platform-aware install hint.
 func installSuggestion(cmdName string) string {
 	switch runtime.GOOS {

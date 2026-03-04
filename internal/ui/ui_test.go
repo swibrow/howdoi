@@ -296,6 +296,93 @@ func TestIsZshExtendedHistory(t *testing.T) {
 	})
 }
 
+func TestValidateCommand(t *testing.T) {
+	cases := []struct {
+		name        string
+		command     string
+		wantMissing bool // true if we expect at least one missing command
+	}{
+		{
+			name:        "simple existing command",
+			command:     "ls -la",
+			wantMissing: false,
+		},
+		{
+			name:        "nonexistent command",
+			command:     "nonexistent_cmd_xyz123 --flag",
+			wantMissing: true,
+		},
+		{
+			name:        "piped with nonexistent",
+			command:     "nonexistent_cmd_xyz123 | grep foo",
+			wantMissing: true,
+		},
+		{
+			name:        "chained with builtin",
+			command:     "echo hello && cd /tmp",
+			wantMissing: false,
+		},
+		{
+			name:        "env var prefix",
+			command:     "FOO=bar ls -la",
+			wantMissing: false,
+		},
+		{
+			name:        "all builtins",
+			command:     "echo hello | export FOO=bar",
+			wantMissing: false,
+		},
+		{
+			name:        "empty command",
+			command:     "",
+			wantMissing: false,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			missing := ValidateCommand(tc.command)
+			if tc.wantMissing && len(missing) == 0 {
+				t.Errorf("expected missing commands for %q, got none", tc.command)
+			}
+			if !tc.wantMissing && len(missing) > 0 {
+				t.Errorf("expected no missing commands for %q, got %v", tc.command, missing)
+			}
+		})
+	}
+}
+
+func TestExtractBaseCommand(t *testing.T) {
+	cases := []struct {
+		name    string
+		segment string
+		want    string
+	}{
+		{name: "simple", segment: "ls -la", want: "ls"},
+		{name: "env var prefix", segment: "FOO=bar git commit", want: "git"},
+		{name: "multiple env vars", segment: "A=1 B=2 make build", want: "make"},
+		{name: "subshell prefix", segment: "(cd /tmp && ls)", want: "cd"},
+		{name: "empty", segment: "", want: ""},
+		{name: "only env var", segment: "FOO=bar", want: ""},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := extractBaseCommand(tc.segment)
+			if got != tc.want {
+				t.Errorf("extractBaseCommand(%q) = %q, want %q", tc.segment, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestValidateCommandDeduplicates(t *testing.T) {
+	missing := ValidateCommand("nonexistent_xyz123 | nonexistent_xyz123")
+	if len(missing) != 1 {
+		t.Errorf("expected 1 unique missing command, got %d: %v", len(missing), missing)
+	}
+}
+
 func TestRunCommandNotFound(t *testing.T) {
 	// Capture stderr to verify the hint is printed
 	oldStderr := os.Stderr
