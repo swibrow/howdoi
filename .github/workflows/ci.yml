@@ -17,7 +17,7 @@ jobs:
     if: github.event.action != 'closed' && !startsWith(github.head_ref, 'release-please--')
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - uses: golangci/golangci-lint-action@v7
@@ -30,7 +30,7 @@ jobs:
     if: github.event.action != 'closed' && !startsWith(github.head_ref, 'release-please--')
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Run tests
@@ -48,7 +48,7 @@ jobs:
         goarch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Build
