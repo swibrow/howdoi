@@ -34,12 +34,32 @@ type Result struct {
 func ParseResponse(response string) Result {
 	var result Result
 
-	for _, line := range strings.Split(response, "\n") {
+	lines := strings.Split(response, "\n")
+	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "COMMAND:") {
 			result.Command = strings.TrimSpace(strings.TrimPrefix(line, "COMMAND:"))
 		} else if strings.HasPrefix(line, "EXPLANATION:") {
 			result.Explanation = strings.TrimSpace(strings.TrimPrefix(line, "EXPLANATION:"))
+		}
+	}
+
+	// Fallback: if no COMMAND: prefix was found, treat lines before
+	// EXPLANATION: (or the entire response) as the command. This handles
+	// models that omit the COMMAND: prefix.
+	if result.Command == "" {
+		var cmdLines []string
+		for _, line := range lines {
+			trimmed := strings.TrimSpace(line)
+			if strings.HasPrefix(trimmed, "EXPLANATION:") {
+				break
+			}
+			if trimmed != "" {
+				cmdLines = append(cmdLines, trimmed)
+			}
+		}
+		if len(cmdLines) > 0 {
+			result.Command = strings.Join(cmdLines, " ")
 		}
 	}
 

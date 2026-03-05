@@ -34,6 +34,36 @@ func TestParseResponseCommandOnly(t *testing.T) {
 	}
 }
 
+func TestParseResponseMissingCommandPrefix(t *testing.T) {
+	response := "ls\nEXPLANATION: Lists the files in the current directory"
+	result := ParseResponse(response)
+
+	if result.Command != "ls" {
+		t.Errorf("command: got %q, want %q", result.Command, "ls")
+	}
+	if result.Explanation != "Lists the files in the current directory" {
+		t.Errorf("explanation: got %q, want %q", result.Explanation, "Lists the files in the current directory")
+	}
+}
+
+func TestParseResponseMissingCommandPrefixMultiline(t *testing.T) {
+	response := "find . -name '*.go' |\n  grep test\nEXPLANATION: Find Go test files"
+	result := ParseResponse(response)
+
+	if result.Command != "find . -name '*.go' | grep test" {
+		t.Errorf("command: got %q, want %q", result.Command, "find . -name '*.go' | grep test")
+	}
+}
+
+func TestParseResponseBareCommand(t *testing.T) {
+	response := "ls -l"
+	result := ParseResponse(response)
+
+	if result.Command != "ls -l" {
+		t.Errorf("command: got %q, want %q", result.Command, "ls -l")
+	}
+}
+
 func TestParseResponseEmpty(t *testing.T) {
 	result := ParseResponse("")
 
