@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/anthropics/anthropic-sdk-go v1.26.0
-	github.com/charmbracelet/lipgloss v1.1.0
+	github.com/charmbracelet/lipgloss/v2 v2.0.0
 	github.com/openai/openai-go v1.12.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/term v0.40.0
