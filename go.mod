@@ -3,7 +3,7 @@ module github.com/swibrow/how
 go 1.25.0
 
 require (
-	github.com/anthropics/anthropic-sdk-go v1.26.0
+	github.com/anthropics/anthropic-sdk-go v1.27.1
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/openai/openai-go v1.12.0
 	github.com/spf13/cobra v1.10.2
