@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/swibrow/how/compare/v1.0.1...v1.1.0) (2026-03-21)
+
+
+### Features
+
+* validate suggested commands exist before presenting to user ([4676ba1](https://github.com/swibrow/how/commit/4676ba1fbb7eea2b0ffeac16208a15d29ef47269))
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/anthropics/anthropic-sdk-go to v1.26.0 ([#4](https://github.com/swibrow/how/issues/4)) ([ef2af8c](https://github.com/swibrow/how/commit/ef2af8cdb92fba7ca9de1419d09ae567b476e86c))
+* handle LLM responses missing COMMAND: prefix ([26a21c5](https://github.com/swibrow/how/commit/26a21c5773f2e4a1b410b91a6a359d14218c3bee))
+
 ## [1.0.1](https://github.com/swibrow/how/compare/v1.0.0...v1.0.1) (2026-02-26)
 
 
